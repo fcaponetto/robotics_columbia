@@ -1,3 +1,26 @@
+# Project 2
+## Description
+This project will introduce you to 'tf', the ROS framework for handling transforms. Please make sure you have read the entry on this package on the ROS wiki. In this project we consider a ROS ecosystem, which consists of a robot with a camera mounted on it as well as an object. To describe the poses of all these items, we define the following coordinate frames:
+
+* A base coordinate frame called 'base'
+* A robot coordinate frame  called 'robot'
+* A camera coordinate frame called 'camera'
+* An object coordinate frame 'object'
+
+The following relationships are true:
+
+1. The transform from the 'base' coordinate frame to the 'object' coordinate frame consists of a rotation expressed as (roll, pitch, yaw) of (0.79, 0.0, 0.79) followed by a translation of 1.0m along the resulting y-axis and 1.0m along the resulting z-axis. 
+2. The transform from the 'base' coordinate frame to the 'robot' coordinate frame consists of a rotation around the z-axis by 1.5 radians followed by a translation along the resulting y-axis of -1.0m. 
+3. The transform from the 'robot' coordinate frame to the 'camera' coordinate frame must be defined as follows:
+4. The translation component of this transform is (0.0, 0.1, 0.1)
+
+The rotation component of this transform must be set such that the camera is pointing directly at the object. In other words, the x-axis of the 'camera' coordinate frame must be pointing directly at the origin of the 'object' coordinate frame. 
+In the provided solution.py write a ROS node that publishes the following transforms to TF:
+
+* The transform from the 'base' coordinate frame to the 'object' coordinate frame 
+* The transform from the 'base' coordinate frame to the 'robot' coordinate frame 
+* The transform from the 'robot' coordinate frame to the 'camera' coordinate frame
+
 ## How do run this project in my own Ubuntu machine?
 IGNORE all the files outside the catkin_ws folder. You do not need these in your local machine 
 The downloaded files are structured as a catkin workspace. You can either use this structure directly (as downloaded) and build the workspace using the **catkin_make**".
