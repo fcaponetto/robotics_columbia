@@ -14,7 +14,7 @@ roscore
 ```
 On another **2 separate terminals** you need to run the scripts in each package:
 ```
-"rosrun marker_publisher marker_publisher 
+rosrun marker_publisher marker_publisher 
 rosrun project2_solution solution.py 
 ```
 Now, to visualize the markers we need to launch rviz. In a new terminal type:
