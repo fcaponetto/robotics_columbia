@@ -23,8 +23,8 @@ In the provided solution.py write a ROS node that publishes the following transf
 
 ## How do run this project in my own Ubuntu machine?
 IGNORE all the files outside the catkin_ws folder. You do not need these in your local machine 
-The downloaded files are structured as a catkin workspace. You can either use this structure directly (as downloaded) and build the workspace using the **catkin_make**.
-``:
+The downloaded files are structured as a catkin workspace. You can either use this structure directly (as downloaded) and build the workspace using the **catkin_make**:
+```
 source /opt/ros/indigo/setup.bash
 cd catkin
 catkin_make
