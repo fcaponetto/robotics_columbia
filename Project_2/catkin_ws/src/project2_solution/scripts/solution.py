@@ -10,16 +10,16 @@ import geometry_msgs.msg
 def message_from_trasform(T):
     msg = geometry_msgs.msg.Transform()
 
-    q = tf.transformations.quaternion_from_matrix(T)
+    rotation = tf.transformations.quaternion_from_matrix(T)
     translation = tf.transformations.translation_from_matrix(T)
 
     msg.translation.x = translation[0]
     msg.translation.y = translation[1]
     msg.translation.z = translation[2]
-    msg.rotation.x = q[0]
-    msg.rotation.y = q[1]
-    msg.rotation.z = q[2]
-    msg.rotation.w = q[3]
+    msg.rotation.x = rotation[0]
+    msg.rotation.y = rotation[1]
+    msg.rotation.z = rotation[2]
+    msg.rotation.w = rotation[3]
     return msg
     
 
