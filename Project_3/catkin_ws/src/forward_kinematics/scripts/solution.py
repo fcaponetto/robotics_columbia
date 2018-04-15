@@ -14,11 +14,14 @@ communicated over the ROS wire. In addition to the transform itself, the message
 also specifies who is related by this transform, the parent and the child."""
 def convert_to_message(T, child, parent):
     t = geometry_msgs.msg.TransformStamped()
+
     t.header.frame_id = parent
     t.header.stamp = rospy.Time.now()
     t.child_frame_id = child
+
     translation = tf.transformations.translation_from_matrix(T)
     rotation = tf.transformations.quaternion_from_matrix(T)
+
     t.transform.translation.x = translation[0]
     t.transform.translation.y = translation[1]
     t.transform.translation.z = translation[2]
@@ -128,7 +131,40 @@ class ForwardKinematics(object):
         T = tf.transformations.identity_matrix()
         
         # YOUR CODE GOES HERE
+        # rospy.logdebug("[Link Names]: %s", link_names)
         
+        # rospy.logdebug("[Joint Origins x,y,z]: %s", joints[0].origin.xyz)
+        # rospy.logdebug("[Joint Types]: %s", joints[0].type)
+        # rospy.logdebug("[Joint Names]: %s", joints[0].name)
+        # rospy.logdebug("[Joint Axis]: %s", joints[0].axis)   
+
+        # rospy.logdebug("[Joint Name Values]: %s", joint_values.name)
+        # rospy.logdebug("[Joint Position Values]: %s", joint_values.position)
+        for i in range(len(joints)):
+            # translation part respect of the previous frame
+            Translation = tf.transformations.translation_matrix(joints[i].origin.xyz)
+
+            # Obtain current joint value
+            try:
+                index = joint_values.name.index(joints[i].name)
+                q = joint_values.position[index]
+
+            except ValueError as e:
+                q = 0.0
+
+            if joints[i].type == 'revolute':
+                # Obtain the rotation axis of the frame
+                actual_axis = joints[i].axis
+                Rotation =  tf.transformations.quaternion_matrix(
+                                tf.transformations.quaternion_about_axis(q, actual_axis))
+            else:
+                Rotation  = tf.transformations.identity_matrix()
+
+            T = tf.transformations.concatenate_matrices(T, Translation, Rotation)
+
+            msg = convert_to_message(T, link_names[i], 'world_link')
+            all_transforms.transforms.append(msg)
+            
         return all_transforms
        
 if __name__ == '__main__':

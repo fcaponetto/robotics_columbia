@@ -1,9 +1,8 @@
-### How do run this project in my own Ubuntu machine?
+## How do run this project in my own Ubuntu machine?
 Install the needed ROS package(s). Run the following lines on your terminal:
-```
 sudo apt-get update
 sudo apt-get install ros-kinetic-urdfdom-py
-```
+
 Replace **kinetic** with the ROS version that you are running on your local machine.
 
 IGNORE all the files other than catkin_ws and kuka_lwr_arm.urdf. Copy the folder catkin_ws to your home directory (you can rename it project3 if you want). Also put the file kuka_lwr_arm.urdf in the home directory.
