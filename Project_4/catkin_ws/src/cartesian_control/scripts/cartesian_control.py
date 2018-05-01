@@ -4,7 +4,6 @@ import math
 import numpy
 import time
 from threading import Thread, Lock
-
 import rospy
 import tf
 from geometry_msgs.msg import Transform
@@ -12,7 +11,7 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 from urdf_parser_py.urdf import URDF
 
-def S_matrix(w):
+def S_matrix(w): 
     S = numpy.zeros((3,3))
     S[0,1] = -w[2]
     S[0,2] =  w[1]
@@ -27,9 +26,137 @@ def cartesian_control(joint_transforms, b_T_ee_current, b_T_ee_desired,
                       red_control, q_current, q0_desired):
     num_joints = len(joint_transforms)
     dq = numpy.zeros(num_joints)
+
     #-------------------- Fill in your code here ---------------------------
 
+    # Compute the desired change in end-effector pose from b_T_ee_current to b_T_ee_desired (Delta_X)
+    ee_cur_T_b = tf.transformations.inverse_matrix(b_T_ee_current)
+    ee_cur_T_ee_des = numpy.dot(ee_cur_T_b, b_T_ee_desired)
+    # Get the translation part (Delta_X)
+    ee_cur_t_ee_des = tf.transformations.translation_from_matrix(ee_cur_T_ee_des)
+    # Get the rotation part (Delta_X)
+    ee_cur_R_ee_des = ee_cur_T_ee_des[:3,:3]
+    # Obtain the necessary angles aroud different axis for the motion required
+    angle, axis = rotation_from_matrix(ee_cur_T_ee_des)
+    ROT = numpy.dot(angle,axis)
+
+    # convert the desired change into a desired end-effector velocity
+    # (the simplest form is to use a PROPORTIONAL CONTROLLER)
+    # Change of the end-effector in the base coordinate frame
+    lin_gain = 1.5
+    rot_gain = 1.5
+    delta_X = numpy.append(ee_cur_t_ee_des * lin_gain, ROT * rot_gain)
+   
+    # velocity controller in end-effector space
+    proportional_gain = 1
+    x_dot = proportional_gain * delta_X
+
+    # normalize the desired change
+    '''
+    if numpy.linalg.norm(x_dot) > 1.0:
+        x_dot /= max(x_dot)
+	'''
+    
+    # NUMERICALLY compute the robot Jacobian. For each joint compute the matrix
+    # that relates the velocity of that joint to the velocity of the end-effector
+    # in its own coordinate frame. Assemble the last column of all these matrices
+    # to construct the Jacobian.
+
+    # This tells you what a specific joint is going to do to the end effector,
+    # in the reference frame of the joint
+
+    # The Jacobian is a matrix that relates the velocity of that joint to the 
+    # velocity of the end-effector in its own coordinate frame
+    J = numpy.empty((6, 0))
+
+    for j in range(num_joints):
+        # b_T_j (from base to joint j)
+        b_T_j = joint_transforms[j]
+        #rospy.logdebug('\n\n[b_T_j]\n\n%s\n\n', b_T_j)
+        
+        # Transformation to obtain the velocity in its own coordinate frame
+        j_T_b = tf.transformations.inverse_matrix(b_T_j)
+        j_T_ee_cur = numpy.dot(j_T_b, b_T_ee_current)
+        # invert the previous homogeneous matrix
+        ee_cur_T_j = tf.transformations.inverse_matrix(j_T_ee_cur)
+        # Same approach
+        #ee_T_j = numpy.dot(ee_T_b, b_T_j)
+
+        ee_cur_R_j = ee_cur_T_j[:3,:3]
+
+        j_t_ee_cur = tf.transformations.translation_from_matrix(j_T_ee_cur)
+        S = S_matrix(j_t_ee_cur)
+        
+        # This matrix is only applicable for revolute joints
+        Vj = numpy.append(
+            numpy.append(
+                ee_cur_R_j,
+                numpy.dot(-ee_cur_R_j, S),
+                axis=1), 
+            numpy.append(
+                numpy.zeros([3,3]),
+                ee_cur_R_j,
+                axis=1), 
+            axis=0)
+        #rospy.logdebug('\n\n[Vj]\n\n%s\n\n', Vj)
+
+        # Assuming that all the joints are revolute, we only use the z component
+        J = numpy.column_stack((J, Vj[:,5])) 
+	
+    # Compute the pseudo-inverse of the Jacobian to avoid numerical
+    # issues that can arise from small singular values
+    # Use the pseudo-inverse of the Jacobian to map from end-effector velocity to
+    # joint velocities.
+    J_pinv = numpy.linalg.pinv(J, rcond=1e-2)
+
+    # map from end-effector velocity to joint velocities (angular in the z axis for all joints)
+    dq = numpy.dot(J_pinv, x_dot)
+
+    if red_control == True:
+        rospy.loginfo('red control: %s', red_control)
+    	# implements the null-space control on the first joint
+        # This can be implemented in any moment because the robot
+        # has more joints than DOF
+
+
+        # find a joint velocity that brings the joint closer to the secondary objective.
+        # use the Jacobian and its pseudo-inverse to project this velocity into the
+        # Jacobian nullspace. It must be used the 'exact' version of the Jacobian
+        # pseudo-inverse, not its 'safe' version. 
+        # J_pinv = numpy.linalg.pinv(J, rcond=0)
+        dq_n = numpy.dot(
+            numpy.identity(7) - numpy.dot(J_pinv, J), 
+            numpy.array([q0_desired - q_current[0],0,0,0,0,0,0]))
+        #Then add the result to the joint velocities obtained for the primary objective
+        dq = numpy.dot(J_pinv, x_dot) + dq_n
+
     #----------------------------------------------------------------------
+    rospy.loginfo('Number of joints: \t%s', num_joints)
+    rospy.loginfo('b_T_ee_current : \n%s', b_T_ee_current)
+    rospy.loginfo('b_T_ee_desired : \n%s', b_T_ee_desired)
+    rospy.loginfo('ee_cur_T_ee_des : \n%s', ee_cur_T_ee_des)
+    rospy.loginfo('Translation ee_cur_T_ee_des: \n%s', ee_cur_t_ee_des)
+    rospy.loginfo('Rotation ee_cur_T_ee_des: \n%s', ee_cur_R_ee_des)
+    rospy.loginfo("Conversion Rotation into euler angles")
+    rospy.loginfo('Angle\t%s \tAxis\t%s', angle,axis)
+    rospy.loginfo('Rotation\n%s', ROT)
+    rospy.loginfo('(Delta_X): \n%s', delta_X)
+    rospy.loginfo('(Delta_X)_dot: \n%s', x_dot)
+    rospy.loginfo('Jacobian matrix: \n%s', J)
+    rospy.loginfo('Jacobian Pseudo-inverse: \n%s', J_pinv)
+    if red_control == True:
+        rospy.loginfo('red control: %s', red_control)
+        # q_current: list of all the current joint positions
+        rospy.loginfo('q_current: \n%s', q_current)
+        # q0_desired: desired position of the first joint to be used as
+        # the secondary objective for null-space control. Again, the goal
+        # of the secondary, null-space controller is to make the value of
+        # the first joint be as close as possible to q0_desired, while not
+        # affecting the pose of the end-effector.
+        rospy.loginfo('q0_desired: \n%s', q0_desired)
+    rospy.loginfo('dq: %s', dq)
+    rospy.loginfo("\n###########################\n")
+
     return dq
     
 def convert_from_message(t):

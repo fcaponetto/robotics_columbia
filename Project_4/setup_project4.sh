@@ -1,6 +1,17 @@
-source /opt/ros/indigo/setup.bash
+source /opt/ros/kinetic/setup.bash
 
-export ROS_NODE_PORT=`get_free_port.py`
+shutdown() {
+  # Get our process group id
+  PGID=$(ps -o pgid= $$ | grep -o [0-9]*)
+
+  # Kill it in a new new process group
+  setsid kill -- -$PGID
+  exit 0
+}
+
+trap "shutdown" SIGINT SIGTERM
+
+export ROS_NODE_PORT=$(python get_free_port.py)
 export ROS_MASTER_URI=http://localhost:$ROS_NODE_PORT
 
 lf="ros.log"
@@ -10,23 +21,9 @@ fi
 touch $lf
 
 echo "Starting roscore with port = $ROS_NODE_PORT..."
-( ( (stdbuf -oL roscore -p $ROS_NODE_PORT) 1> >(stdbuf -oL sed 's/^/ROSCORE: /') 2>&1 ) >> $lf ) &
+( ( (stdbuf -oL roscore -p $ROS_NODE_PORT) 1> >(stdbuf -oL sed 's/^/ROSCORE: /') 2>&1 ) | tee $lf ) &
 
 sleep 1
-
-echo "Running web publisher..."
-( ( (stdbuf -oL rosrun tf2_web_republisher tf2_web_republisher) 1> >(stdbuf -oL sed 's/^/PUB: /') 2>&1 ) >> $lf ) &
-
-sleep 1
-
-echo "Launching RosBridge server..."
-( ( (stdbuf -oL ./launch_rosbridge_server.py) 1> >(stdbuf -oL sed 's/^/BR: /') 2>&1 ) >> $lf ) &
-
-sleep 1
-
-echo "Launching interactive_marker_proxy..."
-( ( (stdbuf -oL rosrun interactive_marker_proxy proxy topic_ns:=/control_markers target_frame:=/world_link) 1> >(stdbuf -oL sed 's/^/PROXY: /') 2>&1 ) >> $lf ) &
-
 
 cd catkin_ws
 catkin_make
@@ -47,3 +44,13 @@ sleep 1
 
 echo "Launching marker_control..."
 rosrun cartesian_control marker_control.py &
+
+sleep 1
+
+echo "Launching cartesian_control"
+rosrun cartesian_control cartesian_control.py &
+
+sleep 1
+
+echo "Launching Rviz"
+rosrun rviz rviz 

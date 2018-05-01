@@ -181,7 +181,7 @@ class MarkerControl(object):
         self.menu_handler.apply(self.server, "cc_marker",)
 
         redundancy_marker = InteractiveMarker()
-        redundancy_marker.header.frame_id = "/lwr_arm_1_link"
+        redundancy_marker.header.frame_id = "/lwr_arm_2_link"
         redundancy_marker.name = "red_marker"
         rotate_control = InteractiveMarkerControl()
         rotate_control.name = "rotate_z"
