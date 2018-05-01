@@ -31,10 +31,11 @@ rosparam set robot_description --textfile kuka_lwr_arm.urdf
 rosrun robot_sim robot_sim_bringup
 ```
 
-On another 2 separate terminals you need to run the scripts for the robot mover and the your solution in forward kineamtics :
+On another 3 separate terminals you need to run the scripts for the robot mover and the your solution in forward kineamtics :
 ```
 rosrun robot_state_publisher robot_state_publisher
 rosrun cartesian_control marker_control.py
+rosrun cartesian_control cartesian_control.py
 ```
 
 Now we can open up Rviz using:
