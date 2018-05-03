@@ -10,6 +10,7 @@ from geometry_msgs.msg import Transform
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 from urdf_parser_py.urdf import URDF
+import traceback
 
 def S_matrix(w): 
     S = numpy.zeros((3,3))
@@ -113,7 +114,6 @@ def cartesian_control(joint_transforms, b_T_ee_current, b_T_ee_desired,
     dq = numpy.dot(J_pinv, x_dot)
 
     if red_control == True:
-        rospy.loginfo('red control: %s', red_control)
     	# implements the null-space control on the first joint
         # This can be implemented in any moment because the robot
         # has more joints than DOF

@@ -12,7 +12,7 @@ shutdown() {
 trap "shutdown" SIGINT SIGTERM
 
 export ROS_NODE_PORT=$(python get_free_port.py)
-export ROS_MASTER_URI=http://localhost:$ROS_NODE_PORT
+export ROS_MASTER_URI=http://127.0.0.1:$ROS_NODE_PORT
 
 lf="ros.log"
 if [ -e $lf ]; then
