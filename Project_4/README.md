@@ -1,3 +1,6 @@
+# Cartesian controller for Kuka LWR
+This controller will allow you to interactively move the end-effector by dragging around an interactive marker. It is done by implementing **Differential Kinematics** and therefore the numerical computation of the **Jacobian**
+
 ## How do run this project in my own Ubuntu machine?
 Install the needed ROS package(s). Run the following lines on your terminal:
 sudo apt-get update
