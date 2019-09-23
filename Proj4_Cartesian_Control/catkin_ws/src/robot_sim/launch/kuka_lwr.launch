@@ -10,4 +10,8 @@
   	name="robot_state_publisher" output="screen" >
   </node>
 
+    <node pkg="cartesian_control" type="marker_control.py" name="marker_ctrl"
+          output="screen">
+    </node>
+
 </launch>
