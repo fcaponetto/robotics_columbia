@@ -17,6 +17,21 @@ The problem we are aiming to solve with a Cartesian controller is the following:
 * Compute the pseudo-inverse of the Jacobian
 * Use the pseudo-inverse of the Jacobian to map from end-effector velocity to joint velocities. The result will be the resulting joint velocities, which will then be sent to the robot.
 
+## The cartesian_control(...) function
+You are given starter code that includes a cartesian_control package, which in turn contains the cartesian_control.py file you must edit. Specifically you must complete the cartesian_control function. The arguments to this function are all the parameters you need to implement a Cartesian controller:
+
+* **joint_transforms**: a list containing the transforms of all the joints with respect to the base frame. In other words, joint_transforms[i] will contain the transform from the base coordinate frame to the coordinate frame of joint i.
+* **b_T_ee_current**: current transform from the base frame to the end-effector
+* **b_T_ee_desired**: desired transform from the base frame to the end-effector
+
+In addition, the parameters below are relevant only if you are also choosing to implement null-space control:
+
+* **red_control**: boolean telling you when the Cartesian Controller should take into account the secondary objective for null-space control. This is only set to True when the user interacts with the control marker dedicated to the first joint of the robot.
+* **q_current**: list of all the current joint positions
+* **q0_desired**: desired position of the first joint to be used as the secondary objective for null-space control. Again, the goal of the secondary, null-space controller is to make the value of the first joint be as close as possible to q0_desired, while not affecting the pose of the end-effector.
+
+The function must return a set of joint velocities such that the end-effector moves towards the desired pose. If you are also implementing null-space control and red_control is set to true, the joint velocities must also attempt to bring q[0] as close to q0_desired as possible, without affecting the primary goal above.
+
 ## How do run this project in my own Ubuntu machine?
 Install the needed ROS package(s). Run the following lines on your terminal:
 sudo apt-get update
