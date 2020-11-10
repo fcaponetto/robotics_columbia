@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     ROS_ERROR("Robot sim bringup: failed to read urdf from parameter server");
     return 0;
   }
-  for (std::map<std::string, boost::shared_ptr<urdf::Joint> >::iterator it = model.joints_.begin();
+  for (auto it = model.joints_.begin();
        it != model.joints_.end(); it++)
   {
     if (it->second->type != urdf::Joint::FIXED)
