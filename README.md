@@ -1,8 +1,7 @@
 # ROS Overview
 
-[ROS course from ETH Zurich](http://www.rsl.ethz.ch/education-students/lectures/ros.html)
+[ROS and Robotics course from Columbia University](https://www.edx.org/course/robotics-2)
 
-Originally developed in 2007 at theStanford Artificial Intelligence Laboratory
 
 ### ROS Workspace Environment
 
