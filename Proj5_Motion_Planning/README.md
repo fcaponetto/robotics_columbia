@@ -8,7 +8,7 @@ You are given starter code including the motion_planning package, which in turn 
 
 Specifically, you must complete the motion_plan function. The arguments to this function and the methods provided by the MoveArm class are all you need to implement an RRT motion planning algorithm. 
 
-The arguments to the motion_plan function are:
+The arguments to the *motion_plan function* are:
 * `q_start`: list of joint values of the robot at the starting position. This is the position in configuration space from which to start
 * `q_goal`: list of joint values of the robot at the goal position. This is the position in configuration space for which to plan
 * `q_min`: list of lower joint limits
@@ -16,7 +16,7 @@ The arguments to the motion_plan function are:
 
 You can use the provided *is_state_valid(...) method* to check if a given point in configuration space is valid or causes a collision.
 
-The motion_plan function must return a path for the robot to follow. A path consists of a list of points in C-space that the robot must go through, where each point in C-space is in turn a list specifying the values for all the robot joints. It is your job to make sure that this path is collision free.
+The *motion_plan function* must return a path for the robot to follow. A path consists of a list of points in C-space that the robot must go through, where each point in C-space is in turn a list specifying the values for all the robot joints. It is your job to make sure that this path is collision free.
 
 ## Algorithm overview
 
