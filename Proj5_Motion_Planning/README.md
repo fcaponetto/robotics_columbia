@@ -19,3 +19,33 @@ The algorithm follows the steps presented in detail in the lecture on Rapidly-ex
 * Trace the tree back from the goal to the root and for each node insert the position in configuration space to a list of joints values.
 * As we have been following the branches of the tree the path computed this way can be very coarse and more complicated than necessary. Therefore, you must check this list of joint values for shortcuts. Similarly to what you were doing when constructing the tree, you can check if the path between any two points in this list is collision free. You can delete any points between two points connected by a collision free path.
 * Return the resulting trimmed path.
+
+## How do run this project in my own Ubuntu machine?
+Install the needed ROS package(s). Run the following lines on your terminal:
+```
+sudo apt install python-wstool ros-melodic-moveit
+```
+## To run the project.
+
+First terminal:
+```
+roslaunch motion_planning mp.launch
+```
+
+Second terminal:
+```
+rosrun motion_planning marker_control.py
+```
+
+Third terminal:
+```
+rosrun motion_planning motion_planning.py
+```
+
+Fourth terminal:
+```
+rviz
+```
+
+On rviz you will need to add a RobotModel, InteractiveMarker, and Marker. When you add the InteractiveMarker, click on "InteractiveMarker" to expand it, and select /control_markers/update as the update topic. You shouldn't need to do anything for the RobotModel and the Marker.
+
